@@ -68,19 +68,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 */
     
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
-        switch anchor { // Если произошло рапознование, то определяем, что распознано, с помощью кастомизации.
-        case let imageAnchor as ARImageAnchor: // Обнаруженное изображение.
-            nodeAdded(node, for: imageAnchor)
-            print("Картинка найдена \(String(describing: imageAnchor.referenceImage.name))!")
-        case let planeAnchor as ARPlaneAnchor: // Обнаруженная плоскость.
-            nodeAdded(node, for: planeAnchor)
-        default:
-            print("Нашли что-то, но это не картинка и не плоскость!")
-        }
+        guard let imageAnchor = anchor as? ARImageAnchor else { return }
+        
+        nodeAdded(node, for: imageAnchor)
+        
+        print("Картинка найдена \(String(describing: imageAnchor.referenceImage.name))!")
     }
     
     func nodeAdded(_ node: SCNNode, for imageAnchor: ARImageAnchor) {
-        let referenceImage = imageAnchor.referenceImage // Обнаруженное изображение.
+        let referenceImage = imageAnchor.referenceImage // Св-ва обнаруженного изображения.
         
         let plane = SCNPlane(width: referenceImage.physicalSize.width, height: referenceImage.physicalSize.height)
         plane.firstMaterial?.diffuse.contents = UIColor.blue
@@ -91,10 +87,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         planeNode.geometry = plane
         
         node.addChildNode(planeNode)
-    }
-    
-    func nodeAdded(_ node: SCNNode, for planeAnchor: ARPlaneAnchor) {
-        
     }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
