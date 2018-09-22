@@ -87,6 +87,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         let planeNode = SCNNode()
         planeNode.opacity = 0.25 // Поверхность прозрачна на 75%.
+        planeNode.eulerAngles.x = -Float.pi / 2
         planeNode.geometry = plane
         
         node.addChildNode(planeNode)
