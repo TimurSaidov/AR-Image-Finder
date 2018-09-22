@@ -36,9 +36,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         
-        let referenceImages = ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil)!
+        let referenceImages = ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: nil)! // Ссылка на изображения, лежащие в папке Assets.
         
-        configuration.detectionImages = referenceImages
+        configuration.detectionImages = referenceImages // Распознования объектов, поиска картинок. Найденный объект (распознанный) anchor попадает в метод renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor)
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -66,6 +66,35 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         return node
     }
 */
+    
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        switch anchor { // Если произошло рапознование, то определяем, что распознано, с помощью кастомизации.
+        case let imageAnchor as ARImageAnchor: // Обнаруженное изображение.
+            nodeAdded(node, for: imageAnchor)
+            print("Картинка найдена \(String(describing: imageAnchor.referenceImage.name))!")
+        case let planeAnchor as ARPlaneAnchor: // Обнаруженная плоскость.
+            nodeAdded(node, for: planeAnchor)
+        default:
+            print("Нашли что-то, но это не картинка и не плоскость!")
+        }
+    }
+    
+    func nodeAdded(_ node: SCNNode, for imageAnchor: ARImageAnchor) {
+        let referenceImage = imageAnchor.referenceImage // Обнаруженное изображение.
+        
+        let plane = SCNPlane(width: referenceImage.physicalSize.width, height: referenceImage.physicalSize.height)
+        plane.firstMaterial?.diffuse.contents = UIColor.blue
+        
+        let planeNode = SCNNode()
+        planeNode.opacity = 0.25 // Поверхность прозрачна на 75%.
+        planeNode.geometry = plane
+        
+        node.addChildNode(planeNode)
+    }
+    
+    func nodeAdded(_ node: SCNNode, for planeAnchor: ARPlaneAnchor) {
+        
+    }
     
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user
